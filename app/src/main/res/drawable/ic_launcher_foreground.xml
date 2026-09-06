@@ -1,0 +1,70 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer Head / Body -->
+    <path
+        android:fillColor="#7CB342"
+        android:pathData="M54,26 C36.326,26 22,40.326 22,58 C22,75.674 36.326,90 54,90 C71.674,90 86,75.674 86,58 C86,40.326 71.674,26 54,26 Z" />
+
+    <!-- Left Eye Bump -->
+    <path
+        android:fillColor="#7CB342"
+        android:pathData="M38,32 A12,12 0 1,1 38,31.99 Z" />
+
+    <!-- Right Eye Bump -->
+    <path
+        android:fillColor="#7CB342"
+        android:pathData="M70,32 A12,12 0 1,1 70,31.99 Z" />
+
+    <!-- Cream Belly / Inner Head -->
+    <path
+        android:fillColor="#DCF6BD"
+        android:pathData="M54,42 C44.059,42 36,49.941 36,59.882 C36,69.823 44.059,77.764 54,77.764 C63.941,77.764 72,69.823 72,59.882 C72,49.941 63.941,42 54,42 Z" />
+
+    <!-- Left Eye White -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,32 A8,8 0 1,1 38,31.99 Z" />
+
+    <!-- Right Eye White -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,32 A8,8 0 1,1 70,31.99 Z" />
+
+    <!-- Left Pupil -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M38,32 A4,4 0 1,1 38,31.99 Z" />
+
+    <!-- Right Pupil -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M70,32 A4,4 0 1,1 70,31.99 Z" />
+
+    <!-- Eye Highlights -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36.5,30.5 A1.5,1.5 0 1,1 36.5,30.49 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M68.5,30.5 A1.5,1.5 0 1,1 68.5,30.49 Z" />
+
+    <!-- Blush Cheeks -->
+    <path
+        android:fillColor="#80FF8A80"
+        android:pathData="M32,58 A5,5 0 1,1 32,57.99 Z" />
+    <path
+        android:fillColor="#80FF8A80"
+        android:pathData="M76,58 A5,5 0 1,1 76,57.99 Z" />
+
+    <!-- Smile Curve -->
+    <path
+        android:strokeColor="#33691E"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M44,58 Q54,68 64,58" />
+
+</vector>

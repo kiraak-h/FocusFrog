@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Focus Frog</string>
+    <string name="ready_to_focus">🐸 Ready to focus?</string>
+    <string name="frog_is_focused">🐸 Frog is focused&#8230;</string>
+    <string name="on_break">☕ Time for a break!</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="reset">Reset</string>
+    <string name="skip_break">Skip Break</string>
+    <string name="sessions_completed">Sessions completed: %1$d 🏆</string>
+    <string name="bugs_count">🪰 %1$d Bugs</string>
+
+    <!-- Stage names -->
+    <string name="stage_tadpole">Stage 1: Tadpole 🫧</string>
+    <string name="stage_froglet">Stage 2: Froglet 🌿</string>
+    <string name="stage_big_frog">Stage 3: Big Frog 🐸</string>
+    <string name="stage_royal_frog">Stage 4: Royal Frog 👑</string>
+
+    <!-- Mood text -->
+    <string name="mood_happy">Lily is happy! 😊</string>
+    <string name="mood_neutral">Lily misses you&#8230; 😐</string>
+    <string name="mood_hungry">Lily is hungry! 😢</string>
+
+    <!-- Leave Dialog -->
+    <string name="leave_dialog_title">Your frog will go hungry! 🐸</string>
+    <string name="leave_dialog_text">Leaving mid-session will cancel your progress and decrease your frog\'s mood. Leave anyway?</string>
+    <string name="leave_dialog_confirm">Leave Anyway</string>
+    <string name="leave_dialog_dismiss">Keep Focusing</string>
+
+    <!-- Notifications -->
+    <string name="session_complete_channel_name">Session Complete</string>
+    <string name="session_complete_title">🐸 Session complete!</string>
+    <string name="session_complete_text">Lily earned 10 bugs.</string>
+
+    <string name="daily_reminder_channel_name">Daily Evening Reminder</string>
+    <string name="daily_reminder_title">🐸 Your frog is hungry!</string>
+    <string name="daily_reminder_text">Your frog is hungry. One session will make it happy!</string>
+</resources>
