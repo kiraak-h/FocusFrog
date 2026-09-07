@@ -41,7 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     private class DatabaseCallback(
         private val context: Context
-    ) : RoomDatabase.Callback() {
+    ) : Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             CoroutineScope(Dispatchers.IO).launch {
@@ -73,10 +73,46 @@ abstract class AppDatabase : RoomDatabase() {
                             requiredStage = "TADPOLE"
                         ),
                         ShopItemEntity(
+                            id = "wizard_hat",
+                            name = "Wizard Hat",
+                            type = "HAT",
+                            price = 120,
+                            isOwned = false,
+                            isEquipped = false,
+                            requiredStage = "FROGLET"
+                        ),
+                        ShopItemEntity(
                             id = "sunglasses",
                             name = "Cool Shades",
                             type = "SUNGLASSES",
                             price = 40,
+                            isOwned = false,
+                            isEquipped = false,
+                            requiredStage = "TADPOLE"
+                        ),
+                        ShopItemEntity(
+                            id = "bow_tie",
+                            name = "Bow Tie",
+                            type = "NECK",
+                            price = 35,
+                            isOwned = false,
+                            isEquipped = false,
+                            requiredStage = "TADPOLE"
+                        ),
+                        ShopItemEntity(
+                            id = "headphones",
+                            name = "Headphones",
+                            type = "HEAD",
+                            price = 60,
+                            isOwned = false,
+                            isEquipped = false,
+                            requiredStage = "TADPOLE"
+                        ),
+                        ShopItemEntity(
+                            id = "leaf_umbrella",
+                            name = "Tiny Leaf Umbrella",
+                            type = "HAND",
+                            price = 45,
                             isOwned = false,
                             isEquipped = false,
                             requiredStage = "TADPOLE"
@@ -113,6 +149,15 @@ abstract class AppDatabase : RoomDatabase() {
                             name = "Rainforest Theme",
                             type = "THEME",
                             price = 80,
+                            isOwned = false,
+                            isEquipped = false,
+                            requiredStage = "TADPOLE"
+                        ),
+                        ShopItemEntity(
+                            id = "theme_sunset",
+                            name = "Sunset Theme",
+                            type = "THEME",
+                            price = 150,
                             isOwned = false,
                             isEquipped = false,
                             requiredStage = "TADPOLE"

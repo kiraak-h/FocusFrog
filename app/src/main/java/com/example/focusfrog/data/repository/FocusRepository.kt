@@ -1,12 +1,14 @@
 package com.example.focusfrog.data.repository
 
 import android.content.Context
+import androidx.glance.appwidget.updateAll
 import com.example.focusfrog.FocusFrogApplication
 import com.example.focusfrog.data.local.db.SessionDao
 import com.example.focusfrog.data.local.db.SessionEntity
 import com.example.focusfrog.data.local.db.UserStatsDao
 import com.example.focusfrog.data.local.db.UserStatsEntity
 import com.example.focusfrog.ui.components.FrogMood
+import com.example.focusfrog.util.FocusFrogWidget
 import com.example.focusfrog.util.NotificationHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -31,6 +33,8 @@ class FocusRepository(
             currentStats
         }
     }
+
+    val recentSessionsFlow: Flow<List<SessionEntity>> = sessionDao.getRecentSessions()
 
     fun getTodaySessionsCountFlow(): Flow<Int> {
         val todayStr = LocalDate.now().toString()
@@ -108,8 +112,15 @@ class FocusRepository(
         )
         sessionDao.insertSession(session)
 
-        // Post session complete notification if app is in background and notifications are enabled
         val appContext = context.applicationContext
+
+        // Update home-screen widget
+        try {
+            FocusFrogWidget().updateAll(appContext)
+        } catch (_: Exception) {
+        }
+
+        // Post session complete notification if app is in background and notifications are enabled
         if (!NotificationHelper.isAppInForeground()) {
             val app = appContext as? FocusFrogApplication
             if (app != null) {

@@ -9,6 +9,27 @@
     <string name="skip_break">Skip Break</string>
     <string name="sessions_completed">Sessions completed: %1$d 🏆</string>
     <string name="bugs_count">🪰 %1$d Bugs</string>
+    <string name="custom">Custom</string>
+    <string name="awesome">Awesome! 💚</string>
+
+    <!-- Stage Evolution -->
+    <string name="evolution_title">Stage Evolution! 🎉</string>
+    <string name="evolution_tadpole_to_froglet">Lily evolved into a Froglet! 🫧 → 🌿</string>
+    <string name="evolution_froglet_to_big_frog">Lily evolved into a Big Frog! 🌿 → 🐸</string>
+    <string name="evolution_big_frog_to_royal_frog">Lily evolved into a Royal Frog! 🐸 → 👑</string>
+
+    <!-- Settings & Custom Duration -->
+    <string name="custom_duration_title">Custom Focus Duration</string>
+    <string name="custom_duration_label">Minutes (1–120)</string>
+    <string name="custom_duration_error">Enter a duration between 1 and 120 minutes</string>
+    <string name="apply">Apply</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="settings_title">Timer Settings ⚙️</string>
+    <string name="break_duration_label">Break Duration: %1$d mins</string>
+    <string name="sound_toggle_label">Sound Effects</string>
+    <string name="haptics_toggle_label">Haptic Feedback</string>
+    <string name="notifications_toggle_label">Daily Reminders &amp; Alerts</string>
 
     <!-- Stage names -->
     <string name="stage_tadpole">Stage 1: Tadpole 🫧</string>
@@ -35,4 +56,12 @@
     <string name="daily_reminder_channel_name">Daily Evening Reminder</string>
     <string name="daily_reminder_title">🐸 Your frog is hungry!</string>
     <string name="daily_reminder_text">Your frog is hungry. One session will make it happy!</string>
+
+    <!-- Diary -->
+    <string name="diary_title">Frog Diary 📖</string>
+    <string name="diary_empty_text">No diary entries yet. Complete your first session and the story begins! 🌱</string>
+    <string name="view_diary">📖 View Diary</string>
+
+    <!-- Widget -->
+    <string name="widget_description">Track your focus frog pet, mood, and daily streak right from your home screen.</string>
 </resources>

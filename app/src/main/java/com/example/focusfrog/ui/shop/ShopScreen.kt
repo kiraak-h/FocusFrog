@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import com.example.focusfrog.ui.theme.BugAmber
 fun ShopScreen(
     viewModel: ShopViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -93,9 +95,9 @@ fun ShopScreen(
                         items(categoryItems) { item ->
                             ShopItemCard(
                                 item = item,
-                                onBuy = { viewModel.buyItem(item) },
-                                onEquip = { viewModel.equipItem(item) },
-                                onUnequip = { viewModel.unequipItem(item) }
+                                onBuy = { viewModel.buyItem(context, item) },
+                                onEquip = { viewModel.equipItem(context, item) },
+                                onUnequip = { viewModel.unequipItem(context, item) }
                             )
                         }
                     }

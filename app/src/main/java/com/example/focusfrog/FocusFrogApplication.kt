@@ -6,6 +6,7 @@ import com.example.focusfrog.data.local.db.AppDatabase
 import com.example.focusfrog.data.repository.FocusRepository
 import com.example.focusfrog.data.repository.ShopRepository
 import com.example.focusfrog.util.NotificationHelper
+import com.example.focusfrog.util.SoundManager
 
 class FocusFrogApplication : Application() {
 
@@ -21,5 +22,11 @@ class FocusFrogApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         NotificationHelper.createNotificationChannels(this)
+        SoundManager.initialize(this)
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        SoundManager.release()
     }
 }

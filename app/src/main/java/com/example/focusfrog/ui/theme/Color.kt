@@ -29,3 +29,9 @@ val RainforestBackground = Color(0xFF1B3A2A)
 val RainforestSurface = Color(0xFF264D3A)
 val RainforestOnBackground = Color(0xFFE8F5E9)
 val RainforestPrimaryContainer = Color(0xFF2E5A44)
+
+// Sunset Theme Colors
+val SunsetBackground = Color(0xFF3D1B28)
+val SunsetSurface = Color(0xFF522336)
+val SunsetOnBackground = Color(0xFFFDF0ED)
+val SunsetPrimaryContainer = Color(0xFF702D43)

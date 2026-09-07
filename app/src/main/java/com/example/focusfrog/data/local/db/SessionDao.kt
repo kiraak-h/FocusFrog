@@ -14,6 +14,9 @@ interface SessionDao {
     @Query("SELECT * FROM sessions ORDER BY timestamp DESC")
     fun getAllSessions(): Flow<List<SessionEntity>>
 
+    @Query("SELECT * FROM sessions ORDER BY timestamp DESC LIMIT 100")
+    fun getRecentSessions(): Flow<List<SessionEntity>>
+
     @Query("SELECT COUNT(*) FROM sessions")
     fun getTotalSessionsCount(): Flow<Int>
 

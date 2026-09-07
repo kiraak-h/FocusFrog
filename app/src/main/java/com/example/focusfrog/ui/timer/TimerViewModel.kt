@@ -8,18 +8,22 @@ import com.example.focusfrog.data.repository.FocusRepository
 import com.example.focusfrog.data.repository.ShopRepository
 import com.example.focusfrog.ui.components.FrogMood
 import com.example.focusfrog.ui.components.FrogStage
+import com.example.focusfrog.util.HapticFeedbackType
+import com.example.focusfrog.util.HapticManager
+import com.example.focusfrog.util.SoundEffect
+import com.example.focusfrog.util.SoundManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class TimerUiState(
     val selectedDurationMinutes: Int = 25,
+    val breakDurationMinutes: Int = 5,
     val timeLeftSeconds: Int = 25 * 60,
     val isRunning: Boolean = false,
     val isOnBreak: Boolean = false,
@@ -27,10 +31,22 @@ data class TimerUiState(
     val bugsBalance: Int = 0,
     val frogMood: FrogMood = FrogMood.NEUTRAL,
     val hasHat: Boolean = false,
+    val hasWizardHat: Boolean = false,
     val hasSunglasses: Boolean = false,
     val hasCrown: Boolean = false,
+    val hasBowTie: Boolean = false,
+    val hasHeadphones: Boolean = false,
+    val hasLeafUmbrella: Boolean = false,
     val triggerJumpAnimation: Boolean = false,
     val showLeaveDialog: Boolean = false,
+    val showCustomDurationDialog: Boolean = false,
+    val showSettingsDialog: Boolean = false,
+    val evolutionMessage: String? = null,
+    val customDurationInput: String = "",
+    val customDurationError: String? = null,
+    val soundEnabled: Boolean = true,
+    val hapticsEnabled: Boolean = true,
+    val notificationsEnabled: Boolean = true,
 ) {
     val frogStage: FrogStage
         get() = when {
@@ -44,7 +60,7 @@ data class TimerUiState(
 class TimerViewModel(
     private val focusRepository: FocusRepository,
     private val shopRepository: ShopRepository,
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TimerUiState())
@@ -53,14 +69,45 @@ class TimerViewModel(
     private var timerJob: Job? = null
 
     init {
-        // Load initial user preferences (saved session duration)
+        // Load and observe saved focus session duration
         viewModelScope.launch {
-            val savedDuration = userPreferencesRepository.selectedSessionLength.first()
-            _uiState.update {
-                it.copy(
-                    selectedDurationMinutes = savedDuration,
-                    timeLeftSeconds = savedDuration * 60
-                )
+            userPreferencesRepository.selectedSessionLength.collectLatest { savedDuration ->
+                if (!_uiState.value.isRunning && !_uiState.value.isOnBreak) {
+                    _uiState.update {
+                        it.copy(
+                            selectedDurationMinutes = savedDuration,
+                            timeLeftSeconds = savedDuration * 60
+                        )
+                    }
+                }
+            }
+        }
+
+        // Load and observe saved break length
+        viewModelScope.launch {
+            userPreferencesRepository.breakLengthMinutes.collectLatest { breakMins ->
+                _uiState.update { it.copy(breakDurationMinutes = breakMins) }
+            }
+        }
+
+        // Load and observe sound preference
+        viewModelScope.launch {
+            userPreferencesRepository.soundEnabled.collectLatest { soundOn ->
+                _uiState.update { it.copy(soundEnabled = soundOn) }
+            }
+        }
+
+        // Load and observe haptics preference
+        viewModelScope.launch {
+            userPreferencesRepository.hapticsEnabled.collectLatest { hapticsOn ->
+                _uiState.update { it.copy(hapticsEnabled = hapticsOn) }
+            }
+        }
+
+        // Load and observe notifications preference
+        viewModelScope.launch {
+            userPreferencesRepository.notificationsEnabled.collectLatest { notifsOn ->
+                _uiState.update { it.copy(notificationsEnabled = notifsOn) }
             }
         }
 
@@ -85,14 +132,23 @@ class TimerViewModel(
         // Observe equipped accessories from shop items
         viewModelScope.launch {
             shopRepository.allShopItems.collectLatest { items ->
-                val hatEquipped = items.any { it.type == "HAT" && it.isEquipped }
+                val hatEquipped = items.any { it.id == "hat_frog" && it.isEquipped }
+                val wizardHatEquipped = items.any { it.id == "wizard_hat" && it.isEquipped }
                 val shadesEquipped = items.any { it.type == "SUNGLASSES" && it.isEquipped }
                 val crownEquipped = items.any { it.type == "CROWN" && it.isEquipped }
+                val bowTieEquipped = items.any { it.type == "NECK" && it.isEquipped }
+                val headphonesEquipped = items.any { it.type == "HEAD" && it.isEquipped }
+                val leafUmbrellaEquipped = items.any { it.type == "HAND" && it.isEquipped }
+
                 _uiState.update {
                     it.copy(
                         hasHat = hatEquipped,
+                        hasWizardHat = wizardHatEquipped,
                         hasSunglasses = shadesEquipped,
-                        hasCrown = crownEquipped
+                        hasCrown = crownEquipped,
+                        hasBowTie = bowTieEquipped,
+                        hasHeadphones = headphonesEquipped,
+                        hasLeafUmbrella = leafUmbrellaEquipped
                     )
                 }
             }
@@ -113,7 +169,77 @@ class TimerViewModel(
         }
     }
 
+    fun openCustomDurationDialog() {
+        if (_uiState.value.isRunning || _uiState.value.isOnBreak) return
+        _uiState.update {
+            it.copy(
+                showCustomDurationDialog = true,
+                customDurationInput = it.selectedDurationMinutes.toString(),
+                customDurationError = null
+            )
+        }
+    }
+
+    fun updateCustomDurationInput(input: String) {
+        _uiState.update { it.copy(customDurationInput = input, customDurationError = null) }
+    }
+
+    fun dismissCustomDurationDialog() {
+        _uiState.update { it.copy(showCustomDurationDialog = false, customDurationError = null) }
+    }
+
+    fun applyCustomDuration() {
+        val input = _uiState.value.customDurationInput.trim()
+        val minutes = input.toIntOrNull()
+        if (minutes == null || minutes !in 1..120) {
+            _uiState.update {
+                it.copy(customDurationError = "Enter a duration between 1 and 120 minutes")
+            }
+            return
+        }
+        selectDuration(minutes)
+        _uiState.update { it.copy(showCustomDurationDialog = false, customDurationError = null) }
+    }
+
+    fun openSettingsDialog() {
+        _uiState.update { it.copy(showSettingsDialog = true) }
+    }
+
+    fun dismissSettingsDialog() {
+        _uiState.update { it.copy(showSettingsDialog = false) }
+    }
+
+    fun dismissEvolutionDialog() {
+        _uiState.update { it.copy(evolutionMessage = null) }
+    }
+
+    fun updateBreakDuration(minutes: Int) {
+        if (minutes !in 1..30) return
+        viewModelScope.launch {
+            userPreferencesRepository.setBreakLengthMinutes(minutes)
+        }
+    }
+
+    fun toggleSoundEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setSoundEnabled(enabled)
+        }
+    }
+
+    fun toggleHapticsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setHapticsEnabled(enabled)
+        }
+    }
+
+    fun toggleNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            userPreferencesRepository.setNotificationsEnabled(enabled)
+        }
+    }
+
     fun toggleStartPause(context: Context) {
+        HapticManager.performHaptic(context, HapticFeedbackType.LIGHT_TICK, _uiState.value.hapticsEnabled)
         val currentState = _uiState.value
         if (currentState.isRunning) {
             pauseTimer()
@@ -141,7 +267,8 @@ class TimerViewModel(
         _uiState.update { it.copy(isRunning = false) }
     }
 
-    fun onResetClicked() {
+    fun onResetClicked(context: Context) {
+        HapticManager.performHaptic(context, HapticFeedbackType.LIGHT_TICK, _uiState.value.hapticsEnabled)
         if (_uiState.value.isRunning && !_uiState.value.isOnBreak) {
             _uiState.update { it.copy(showLeaveDialog = true) }
         } else {
@@ -172,7 +299,7 @@ class TimerViewModel(
     private fun resetTimer() {
         timerJob?.cancel()
         val defaultSeconds = if (_uiState.value.isOnBreak) {
-            5 * 60
+            _uiState.value.breakDurationMinutes * 60
         } else {
             _uiState.value.selectedDurationMinutes * 60
         }
@@ -207,14 +334,31 @@ class TimerViewModel(
                 )
             }
         } else {
-            // Focus session finished naturally -> record session in repository
+            // Focus session finished naturally -> sound, haptic, record session, trigger jump
+            SoundManager.playSound(SoundEffect.SESSION_COMPLETE, _uiState.value.soundEnabled)
+            SoundManager.playSound(SoundEffect.HAPPY_JUMP, _uiState.value.soundEnabled)
+            HapticManager.performHaptic(context, HapticFeedbackType.DOUBLE_TICK_COMPLETE, _uiState.value.hapticsEnabled)
+
             val durationMinutes = _uiState.value.selectedDurationMinutes
+            val breakMins = _uiState.value.breakDurationMinutes
+
+            val oldSessions = _uiState.value.completedSessions
+            val newSessions = oldSessions + 1
+
+            val evolutionMsg = when {
+                oldSessions < 10 && newSessions >= 10 -> "Lily evolved into a Froglet! 🫧 → 🌿"
+                oldSessions < 30 && newSessions >= 30 -> "Lily evolved into a Big Frog! 🌿 → 🐸"
+                oldSessions < 100 && newSessions >= 100 -> "Lily evolved into a Royal Frog! 🐸 → 👑"
+                else -> null
+            }
+
             _uiState.update {
                 it.copy(
                     isRunning = false,
                     triggerJumpAnimation = true,
                     isOnBreak = true,
-                    timeLeftSeconds = 5 * 60
+                    timeLeftSeconds = breakMins * 60,
+                    evolutionMessage = evolutionMsg
                 )
             }
             viewModelScope.launch {

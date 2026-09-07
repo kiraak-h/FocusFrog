@@ -15,6 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import com.example.focusfrog.ui.diary.DiaryViewModel
+import com.example.focusfrog.ui.diary.DiaryViewModelFactory
 import com.example.focusfrog.ui.main.MainScreen
 import com.example.focusfrog.ui.shop.ShopViewModel
 import com.example.focusfrog.ui.shop.ShopViewModelFactory
@@ -42,6 +44,11 @@ class MainActivity : ComponentActivity() {
     private val statsViewModel: StatsViewModel by viewModels {
         val app = application as FocusFrogApplication
         StatsViewModelFactory(app.focusRepository)
+    }
+
+    private val diaryViewModel: DiaryViewModel by viewModels {
+        val app = application as FocusFrogApplication
+        DiaryViewModelFactory(app.focusRepository)
     }
 
     private val requestNotificationPermissionLauncher = registerForActivityResult(
@@ -87,7 +94,8 @@ class MainActivity : ComponentActivity() {
                     MainScreen(
                         timerViewModel = timerViewModel,
                         shopViewModel = shopViewModel,
-                        statsViewModel = statsViewModel
+                        statsViewModel = statsViewModel,
+                        diaryViewModel = diaryViewModel
                     )
                 }
             }

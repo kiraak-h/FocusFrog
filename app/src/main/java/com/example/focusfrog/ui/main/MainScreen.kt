@@ -11,6 +11,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.focusfrog.ui.components.BottomNavBar
 import com.example.focusfrog.ui.components.BottomNavItem
+import com.example.focusfrog.ui.diary.DiaryScreen
+import com.example.focusfrog.ui.diary.DiaryViewModel
 import com.example.focusfrog.ui.shop.ShopScreen
 import com.example.focusfrog.ui.shop.ShopViewModel
 import com.example.focusfrog.ui.stats.StatsScreen
@@ -22,26 +24,35 @@ import com.example.focusfrog.ui.timer.TimerViewModel
 fun MainScreen(
     timerViewModel: TimerViewModel,
     shopViewModel: ShopViewModel,
-    statsViewModel: StatsViewModel
+    statsViewModel: StatsViewModel,
+    diaryViewModel: DiaryViewModel
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: BottomNavItem.Timer.route
 
+    val isTopLevelDestination = currentRoute in listOf(
+        BottomNavItem.Timer.route,
+        BottomNavItem.Shop.route,
+        BottomNavItem.Stats.route
+    )
+
     Scaffold(
         bottomBar = {
-            BottomNavBar(
-                currentRoute = currentRoute,
-                onNavigate = { route ->
-                    navController.navigate(route) {
-                        popUpTo(BottomNavItem.Timer.route) {
-                            saveState = true
+            if (isTopLevelDestination) {
+                BottomNavBar(
+                    currentRoute = currentRoute,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            popUpTo(BottomNavItem.Timer.route) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
-                }
-            )
+                )
+            }
         }
     ) { innerPadding ->
         NavHost(
@@ -56,7 +67,16 @@ fun MainScreen(
                 ShopScreen(viewModel = shopViewModel)
             }
             composable(BottomNavItem.Stats.route) {
-                StatsScreen(viewModel = statsViewModel)
+                StatsScreen(
+                    onNavigateToDiary = { navController.navigate("diary") },
+                    viewModel = statsViewModel
+                )
+            }
+            composable("diary") {
+                DiaryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    viewModel = diaryViewModel
+                )
             }
         }
     }

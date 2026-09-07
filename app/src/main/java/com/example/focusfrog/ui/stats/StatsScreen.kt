@@ -3,6 +3,7 @@ package com.example.focusfrog.ui.stats
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -12,14 +13,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.focusfrog.R
 import com.example.focusfrog.ui.components.StatCard
 
 @Composable
 fun StatsScreen(
+    onNavigateToDiary: () -> Unit,
     viewModel: StatsViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -29,13 +33,27 @@ fun StatsScreen(
             .fillMaxSize()
             .padding(24.dp)
     ) {
-        Text(
-            text = "Stats & Streaks 📊",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Stats & Streaks 📊",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Button(
+                onClick = onNavigateToDiary,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(text = stringResource(id = R.string.view_diary))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         if (uiState.totalSessions == 0) {
             // Empty State

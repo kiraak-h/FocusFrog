@@ -2,6 +2,8 @@ package com.example.focusfrog.ui.timer
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,10 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.focusfrog.R
+import com.example.focusfrog.ui.components.CustomDurationDialog
+import com.example.focusfrog.ui.components.EvolutionDialog
 import com.example.focusfrog.ui.components.FrogAvatar
 import com.example.focusfrog.ui.components.FrogMood
 import com.example.focusfrog.ui.components.FrogStage
 import com.example.focusfrog.ui.components.LeaveDialog
+import com.example.focusfrog.ui.components.SettingsDialog
 import com.example.focusfrog.ui.theme.BugAmber
 import com.example.focusfrog.ui.theme.FrogGreen
 import java.util.Locale
@@ -37,6 +42,37 @@ fun TimerScreen(
         )
     }
 
+    if (uiState.showCustomDurationDialog) {
+        CustomDurationDialog(
+            input = uiState.customDurationInput,
+            error = uiState.customDurationError,
+            onInputChange = { viewModel.updateCustomDurationInput(it) },
+            onApply = { viewModel.applyCustomDuration() },
+            onDismiss = { viewModel.dismissCustomDurationDialog() }
+        )
+    }
+
+    if (uiState.showSettingsDialog) {
+        SettingsDialog(
+            breakDurationMinutes = uiState.breakDurationMinutes,
+            soundEnabled = uiState.soundEnabled,
+            hapticsEnabled = uiState.hapticsEnabled,
+            notificationsEnabled = uiState.notificationsEnabled,
+            onBreakDurationChange = { viewModel.updateBreakDuration(it) },
+            onSoundToggle = { viewModel.toggleSoundEnabled(it) },
+            onHapticsToggle = { viewModel.toggleHapticsEnabled(it) },
+            onNotificationsToggle = { viewModel.toggleNotificationsEnabled(it) },
+            onDismiss = { viewModel.dismissSettingsDialog() }
+        )
+    }
+
+    uiState.evolutionMessage?.let { message ->
+        EvolutionDialog(
+            message = message,
+            onDismiss = { viewModel.dismissEvolutionDialog() }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,12 +80,20 @@ fun TimerScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Top Bar: Bugs Balance
+        // Top Bar: Settings Icon & Bugs Balance
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = { viewModel.openSettingsDialog() }) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(id = R.string.settings_title),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
             Surface(
                 shape = RoundedCornerShape(16.dp),
                 color = BugAmber.copy(alpha = 0.2f),
@@ -74,8 +118,12 @@ fun TimerScreen(
                 mood = uiState.frogMood,
                 size = 180.dp,
                 hasHat = uiState.hasHat,
+                hasWizardHat = uiState.hasWizardHat,
                 hasSunglasses = uiState.hasSunglasses,
                 hasCrown = uiState.hasCrown,
+                hasBowTie = uiState.hasBowTie,
+                hasHeadphones = uiState.hasHeadphones,
+                hasLeafUmbrella = uiState.hasLeafUmbrella,
                 triggerJump = uiState.triggerJumpAnimation,
                 onJumpFinished = { viewModel.onJumpAnimationFinished() }
             )
@@ -111,12 +159,16 @@ fun TimerScreen(
             // Duration Picker Chips (Only when not running and not on break)
             if (!uiState.isRunning && !uiState.isOnBreak) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(bottom = 16.dp)
                 ) {
-                    val durationOptions = listOf(5, 15, 25, 50)
-                    durationOptions.forEach { duration ->
-                        val isSelected = uiState.selectedDurationMinutes == duration
+                    val presetOptions = listOf(5, 15, 25, 50)
+                    val currentMins = uiState.selectedDurationMinutes
+                    val isCustomActive = currentMins !in presetOptions
+
+                    presetOptions.forEach { duration ->
+                        val isSelected = currentMins == duration
                         FilterChip(
                             selected = isSelected,
                             onClick = { viewModel.selectDuration(duration) },
@@ -136,6 +188,26 @@ fun TimerScreen(
                             )
                         )
                     }
+
+                    // Custom Duration Chip
+                    FilterChip(
+                        selected = isCustomActive,
+                        onClick = { viewModel.openCustomDurationDialog() },
+                        label = {
+                            Text(
+                                text = if (isCustomActive) "${currentMins}m" else stringResource(id = R.string.custom),
+                                color = if (isCustomActive) Color.White else MaterialTheme.colorScheme.onSurface,
+                                fontWeight = if (isCustomActive) FontWeight.Bold else FontWeight.Normal
+                            )
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = FrogGreen,
+                            selectedLabelColor = Color.White,
+                            containerColor = Color.Transparent,
+                            labelColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    )
                 }
             } else if (uiState.isOnBreak) {
                 Text(
@@ -146,11 +218,9 @@ fun TimerScreen(
                 )
             }
 
-            // MM:SS Timer Display
-            val minutes = uiState.timeLeftSeconds / 60
-            val seconds = uiState.timeLeftSeconds % 60
+            // MM:SS / HH:MM:SS Timer Display
             Text(
-                text = String.format(Locale.US, "%02d:%02d", minutes, seconds),
+                text = formatTimerText(uiState.timeLeftSeconds),
                 style = MaterialTheme.typography.displayLarge,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -181,7 +251,7 @@ fun TimerScreen(
                 }
 
                 OutlinedButton(
-                    onClick = { viewModel.onResetClicked() },
+                    onClick = { viewModel.onResetClicked(context) },
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .height(52.dp)
@@ -216,6 +286,17 @@ fun TimerScreen(
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             modifier = Modifier.padding(bottom = 16.dp)
         )
+    }
+}
+
+private fun formatTimerText(secondsRemaining: Int): String {
+    val hours = secondsRemaining / 3600
+    val minutes = (secondsRemaining % 3600) / 60
+    val seconds = secondsRemaining % 60
+    return if (hours > 0) {
+        String.format(Locale.US, "%02d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format(Locale.US, "%02d:%02d", minutes, seconds)
     }
 }
 

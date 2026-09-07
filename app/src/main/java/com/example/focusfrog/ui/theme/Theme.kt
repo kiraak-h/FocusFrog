@@ -58,6 +58,19 @@ private val RainforestColorScheme = darkColorScheme(
     tertiary = BugAmber
 )
 
+private val SunsetColorScheme = darkColorScheme(
+    primary = FrogGreen,
+    onPrimary = SunsetSurface,
+    primaryContainer = SunsetPrimaryContainer,
+    onPrimaryContainer = SunsetOnBackground,
+    secondary = PondBlue,
+    background = SunsetBackground,
+    onBackground = SunsetOnBackground,
+    surface = SunsetSurface,
+    onSurface = SunsetOnBackground,
+    tertiary = BugAmber
+)
+
 @Composable
 fun FocusFrogTheme(
     equippedTheme: String = "Pond",
@@ -67,6 +80,7 @@ fun FocusFrogTheme(
     val colorScheme = when {
         equippedTheme.contains("Night Sky", ignoreCase = true) || equippedTheme.contains("theme_night_sky", ignoreCase = true) -> NightSkyColorScheme
         equippedTheme.contains("Rainforest", ignoreCase = true) || equippedTheme.contains("theme_rainforest", ignoreCase = true) -> RainforestColorScheme
+        equippedTheme.contains("Sunset", ignoreCase = true) || equippedTheme.contains("theme_sunset", ignoreCase = true) -> SunsetColorScheme
         equippedTheme.contains("Pond", ignoreCase = true) || equippedTheme.contains("theme_pond", ignoreCase = true) -> if (darkTheme) DarkColorScheme else LightColorScheme
         darkTheme -> DarkColorScheme
         else -> LightColorScheme

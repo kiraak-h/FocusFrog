@@ -17,7 +17,9 @@ class UserPreferencesRepository(private val context: Context) {
 
     private object PreferencesKeys {
         val SELECTED_SESSION_LENGTH = intPreferencesKey("selected_session_length")
+        val BREAK_LENGTH_MINUTES = intPreferencesKey("break_length_minutes")
         val SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
+        val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val EQUIPPED_THEME = stringPreferencesKey("equipped_theme")
     }
@@ -26,8 +28,16 @@ class UserPreferencesRepository(private val context: Context) {
         preferences[PreferencesKeys.SELECTED_SESSION_LENGTH] ?: 25
     }
 
+    val breakLengthMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.BREAK_LENGTH_MINUTES] ?: 5
+    }
+
     val soundEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.SOUND_ENABLED] ?: true
+    }
+
+    val hapticsEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.HAPTICS_ENABLED] ?: true
     }
 
     val notificationsEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -44,9 +54,21 @@ class UserPreferencesRepository(private val context: Context) {
         }
     }
 
+    suspend fun setBreakLengthMinutes(lengthMinutes: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.BREAK_LENGTH_MINUTES] = lengthMinutes
+        }
+    }
+
     suspend fun setSoundEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.SOUND_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setHapticsEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.HAPTICS_ENABLED] = enabled
         }
     }
 
